@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de Zapata Aislada – Norma REP Panamá</title>
+  <meta name="description" content="Calculadora gratis para ingenieros en Panamá. Cumple norma REP y COPANIT. Obtén área, acero y concreto al instante." />
+  <meta name="keywords" content="calcular zapata aislada Panamá REP, COPANIT, SPIA, diseño de cimentaciones Panamá" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── TOKENS ─── */
+    :root {
+      --bg:        #0D1117;
+      --surface:   #161B22;
+      --border:    #21262D;
+      --accent:    #E8A045;   /* concreto armado / Panamá dorado */
+      --accent2:   #3D7EBF;   /* plano técnico / blueprint */
+      --text:      #E6EDF3;
+      --muted:     #7D8590;
+      --safe:      #3FB950;
+      --radius:    6px;
+      --font-head: 'Space Grotesk', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-head);
+      line-height: 1.6;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(13,17,23,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+      text-decoration: none;
+    }
+    .nav-links {
+      display: flex;
+      gap: 24px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color .2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--accent);
+      color: #0D1117 !important;
+      padding: 6px 14px;
+      border-radius: var(--radius);
+      font-weight: 700;
+      font-size: 12px !important;
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 80px 24px 56px;
+    }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .eyebrow::before {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: var(--accent);
+    }
+    h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 20px;
+    }
+    h1 span { color: var(--accent); }
+    .hero-sub {
+      color: var(--muted);
+      font-size: 16px;
+      max-width: 600px;
+      margin-bottom: 32px;
+    }
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 40px;
+    }
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .badge.ok { border-color: var(--safe); color: var(--safe); }
+
+    /* ─── CALCULADORA IFRAME ─── */
+    .calc-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--accent);
+      border-radius: var(--radius);
+      max-width: 860px;
+      margin: 0 auto 40px;
+      overflow: hidden;
+    }
+    .calc-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-r { background: #FF5F57; }
+    .dot-y { background: #FFBD2E; }
+    .dot-g { background: #28C840; }
+    .calc-header span { margin-left: 4px; }
+    iframe.calc-frame {
+      display: block;
+      width: 100%;
+      height: 580px;
+      border: none;
+      background: #fff;
+    }
+
+    /* ─── INSTRUCCIONES ─── */
+    .section {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 0 24px 56px;
+    }
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent2);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .steps {
+      display: grid;
+      gap: 12px;
+      counter-reset: step;
+    }
+    .step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+    }
+    .step-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--accent);
+      min-width: 28px;
+      padding-top: 2px;
+    }
+    .step p { font-size: 14px; color: var(--muted); }
+    .step strong { color: var(--text); display: block; margin-bottom: 2px; font-size: 15px; }
+
+    /* ─── ACORDEÓN TÉCNICO ─── */
+    details {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 10px;
+    }
+    summary {
+      padding: 16px 20px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      list-style: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    summary::after {
+      content: '＋';
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-size: 16px;
+    }
+    details[open] summary::after { content: '－'; }
+    .details-body {
+      padding: 0 20px 20px;
+      border-top: 1px solid var(--border);
+      padding-top: 16px;
+    }
+    .details-body p, .details-body li {
+      font-size: 14px;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .details-body ul { padding-left: 18px; }
+    .formula {
+      font-family: var(--font-mono);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent2);
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 13px;
+      color: var(--accent2);
+      margin: 12px 0;
+      display: block;
+    }
+    .norm-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: rgba(61,126,191,0.15);
+      color: var(--accent2);
+      border: 1px solid rgba(61,126,191,0.3);
+      margin-right: 4px;
+    }
+
+    /* ─── TABLA NORMAS ─── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-top: 12px;
+    }
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      letter-spacing: 0.08em;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      vertical-align: top;
+    }
+    td:first-child { color: var(--accent); font-family: var(--font-mono); font-size: 12px; }
+    tr:last-child td { border-bottom: none; }
+
+    /* ─── CTA PREMIUM ─── */
+    .cta-block {
+      max-width: 860px;
+      margin: 0 auto 64px;
+      padding: 0 24px;
+    }
+    .cta-inner {
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      padding: 36px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .cta-inner h3 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+    .cta-inner p {
+      color: var(--muted);
+      font-size: 14px;
+      max-width: 520px;
+    }
+    .cta-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .cta-list li {
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cta-list li::before {
+      content: '✓';
+      color: var(--safe);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    .cta-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent);
+      color: #0D1117;
+      font-family: var(--font-head);
+      font-weight: 700;
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity .2s;
+      display: inline-block;
+    }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      font-family: var(--font-head);
+      font-size: 14px;
+      padding: 12px 24px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      text-decoration: none;
+      transition: border-color .2s, color .2s;
+      display: inline-block;
+    }
+    .btn-secondary:hover { border-color: var(--muted); color: var(--text); }
+    .price-tag {
+      font-family: var(--font-mono);
+      color: var(--accent);
+      font-size: 22px;
+      font-weight: 600;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+    }
+    footer a { color: var(--muted); text-decoration: none; margin: 0 8px; }
+    footer a:hover { color: var(--text); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      .nav-links { display: none; }
+      .hero { padding: 48px 16px 40px; }
+      .section { padding: 0 16px 40px; }
+      .cta-inner { padding: 24px 20px; }
+      .cta-actions { flex-direction: column; }
+      .btn-primary, .btn-secondary { text-align: center; }
+      iframe.calc-frame { height: 480px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">StructuraPro</a>
+  <ul class="nav-links">
+    <li><a href="#">Inicio</a></li>
+    <li><a href="#">Calculadoras</a></li>
+    <li><a href="#premium" class="nav-cta">Premium</a></li>
+    <li><a href="#">Contacto</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <p class="eyebrow">Herramienta gratuita · REP Panamá</p>
+  <h1>Calculadora de <span>Zapata Aislada</span><br>según norma REP Panamá</h1>
+  <p class="hero-sub">
+    Diseña zapatas aisladas con cumplimiento del Reglamento Estructural de Panamá (REP), 
+    COPANIT y criterios SPIA. Factor de seguridad ≥ 1.5 garantizado.
+  </p>
+  <div class="badge-row">
+    <span class="badge ok">✓ REP 2021</span>
+    <span class="badge ok">✓ COPANIT-R-010</span>
+    <span class="badge ok">✓ ACI 318-19</span>
+    <span class="badge">FS ≥ 1.5</span>
+    <span class="badge">Gratis</span>
+  </div>
+</section>
+
+<!-- CALCULADORA (IFRAME) -->
+<div style="max-width:860px;margin:0 auto;padding:0 24px 24px;">
+  <div class="calc-section">
+    <div class="calc-header">
+      <span class="dot dot-r"></span>
+      <span class="dot dot-y"></span>
+      <span class="dot dot-g"></span>
+      <span>calculadora-zapata-aislada · GitHub Pages</span>
+    </div>
+    <div style="padding:48px 40px;display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;">
+      <div style="font-size:48px">🧱</div>
+      <div>
+        <p style="font-size:16px;font-weight:700;margin-bottom:8px;">Calculadora de Zapata Aislada</p>
+        <p style="font-size:13px;color:var(--muted);max-width:400px;">
+          Herramienta interactiva según REP Panamá, COPANIT y ACI 318-19.<br>Se abre en una nueva pestaña.
+        </p>
+      </div>
+      <a href="https://joseisaacs.github.io/estimador-materiales-obra/"
+         target="_blank" rel="noopener noreferrer"
+         class="btn-primary"
+         style="font-size:15px;padding:14px 32px;">
+        Abrir calculadora →
+      </a>
+      <p style="font-size:11px;color:var(--muted);font-family:var(--font-mono);">
+        Abre en nueva pestaña · Gratis · Sin registro
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUCCIONES DE USO -->
+<section class="section">
+  <p class="section-label">Guía de uso</p>
+  <h2>Cómo usar esta calculadora</h2>
+  <div class="steps">
+    <div class="step">
+      <span class="step-num">01</span>
+      <div>
+        <strong>Ingresa la carga axial (P)</strong>
+        <p>Carga total en toneladas (ton) que recibirá la zapata, incluyendo peso propio si aplica.</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">02</span>
+      <div>
+        <strong>Selecciona la resistencia admisible del suelo (q<sub>adm</sub>)</strong>
+        <p>Según el estudio de suelos (SPIA). Valores típicos en Panamá: 1.0 – 3.0 kg/cm².</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">03</span>
+      <div>
+        <strong>Define dimensiones de columna y recubrimiento</strong>
+        <p>Ingresa sección de columna (cm × cm) y recubrimiento según ACI §20.6.1.3 (mínimo 7.5 cm en contacto con suelo).</p>
+      </div>
+    </div>
+    <div class="step">
+      <span class="step-num">04</span>
+      <div>
+        <strong>Presiona "Diseñar Zapata"</strong>
+        <p>Obtendrás: área requerida, peralte efectivo, acero mínimo y verificación de corte.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACORDEÓN TÉCNICO -->
+<section class="section" style="padding-top:0">
+  <p class="section-label">Referencia técnica</p>
+  <h2>Base de cálculo</h2>
+
+  <details>
+    <summary>Fórmula de área de zapata y factor de seguridad</summary>
+    <div class="details-body">
+      <p>El área de la zapata se obtiene dividiendo la carga de servicio (sin factorizar) entre la resistencia admisible del suelo:</p>
+      <code class="formula">A_req = P_servicio / q_adm &nbsp;(FS ≥ 1.5 según REP Art. 42)</code>
+      <p>Para zapata cuadrada: <code class="formula" style="display:inline;padding:2px 6px">L = √A_req</code> → se redondea al siguiente 5 cm.</p>
+      <p>La presión real actuante debe cumplir: <strong>q_real ≤ q_adm</strong></p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Peralte efectivo y verificación de corte</summary>
+    <div class="details-body">
+      <p>Se verifica corte unidireccional (en viga) y bidireccional (en punzonamiento) conforme ACI 318-19 §22.5 y §22.6:</p>
+      <code class="formula">V_u ≤ φ · V_c</code>
+      <p>Donde <code>φ = 0.75</code> y <code>V_c = 0.17 · √f'c · b · d</code> para corte unidireccional.</p>
+      <p>El peralte mínimo para zapatas con barra #5 es generalmente <strong>d ≥ 25 cm</strong> (h ≥ 30 cm).</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Acero mínimo de refuerzo</summary>
+    <div class="details-body">
+      <p>Cuantía mínima según ACI 318-19 §9.6.1.2:</p>
+      <code class="formula">ρ_min = 0.0018 (para f'y = 4200 kg/cm²)</code>
+      <p>El espaciado máximo de barras no debe exceder <strong>45 cm</strong> ni <strong>3h</strong>. Empalme por traslape mínimo: 40·ϕ.</p>
+    </div>
+  </details>
+</section>
+
+<!-- TABLA NORMATIVA -->
+<section class="section" style="padding-top:0">
+  <p class="section-label">Marco normativo</p>
+  <h2>Normativa panameña aplicable</h2>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+    <table>
+      <thead>
+        <tr>
+          <th>Norma</th>
+          <th>Artículo / Sección</th>
+          <th>Aplicación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>REP 2021</td>
+          <td>Art. 42 – Cimentaciones superficiales</td>
+          <td>Factor de seguridad ≥ 1.5, cargas de servicio</td>
+        </tr>
+        <tr>
+          <td>COPANIT-R-010</td>
+          <td>Código de cimentaciones</td>
+          <td>Capacidad portante del suelo, clasificación</td>
+        </tr>
+        <tr>
+          <td>SPIA</td>
+          <td>Estudio de suelos</td>
+          <td>q_adm de diseño según tipo de suelo</td>
+        </tr>
+        <tr>
+          <td>ACI 318-19</td>
+          <td>§13 Foundations, §22.5/22.6</td>
+          <td>Diseño de concreto, corte, flexión, refuerzo</td>
+        </tr>
+        <tr>
+          <td>ASTM A615</td>
+          <td>Grado 60</td>
+          <td>Acero de refuerzo f'y = 4200 kg/cm²</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CTA PREMIUM -->
+<div class="cta-block" id="premium">
+  <div class="cta-inner">
+    <div>
+      <p style="font-family:var(--font-mono);font-size:11px;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px">Informe completo</p>
+      <h3>🔒 ¿Necesitas el informe con cómputos métricos?</h3>
+    </div>
+    <p>Incluye memoria de cálculo, cuadro de acero, tabla de materiales (concreto, acero, formaleta) y detalle estructural exportable a PDF.</p>
+    <ul class="cta-list">
+      <li>Memoria de cálculo firmable (PDF)</li>
+      <li>Cómputos métricos en Excel (Panamá)</li>
+      <li>Detalle de refuerzo conforme REP + ACI</li>
+      <li>Compatible con StructuraPro v4.0</li>
+    </ul>
+    <div class="cta-actions">
+      <span class="price-tag">$4.99</span>
+      <!-- Reemplaza el href con tu página de pago / formulario -->
+      <a href="#" class="btn-primary">Descargar informe completo →</a>
+      <a href="#" class="btn-secondary">Avísame cuando esté disponible</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>
+    <a href="#">Aviso legal</a>
+    <a href="#">Calculadoras</a>
+    <a href="#">Contacto</a>
+    <a href="#">Política de privacidad</a>
+  </p>
+  <p style="margin-top:12px">
+    © 2025 StructuraPro · Herramientas de ingeniería para Panamá · 
+    Cálculos referenciales — no reemplazan criterio profesional firmado.
+  </p>
+</footer>
+
+</body>
+</html>
